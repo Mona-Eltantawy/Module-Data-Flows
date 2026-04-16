@@ -80,11 +80,9 @@ function gryffindorMembers(hogwarts) {
 
 console.log(gryffindorMembers(hogwarts));
 
-
-
 function petsOwners(hogwarts) {
- return hogwarts
-    .filter(({ occupation, pet }) => occupation === "Teacher" && pet!== null)
+  return hogwarts
+    .filter(({ occupation, pet }) => occupation === "Teacher" && pet !== null)
     .map(({ firstName, lastName }) => `${firstName} ${lastName}`)
     .join("\n");
 }

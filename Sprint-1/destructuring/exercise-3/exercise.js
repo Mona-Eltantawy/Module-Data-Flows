@@ -35,4 +35,4 @@ function printReceipt(order) {
   console.log("\nTotal: " + (total / 100).toFixed(2));
 }
 
-printReceipt(order); 
+printReceipt(order);
