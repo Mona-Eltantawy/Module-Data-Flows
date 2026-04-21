@@ -6,6 +6,13 @@ window.addEventListener("load", function (e) {
 
 });
 
+function Book(title, author, pages, read) {
+  this.title = title;
+  this.author = author;
+  this.pages = pages;
+  this.read = read;
+}
+
 function populateStorage() {
   if (myLibrary.length == 0) {
     let book1 = new Book("Robison Crusoe", "Daniel Defoe", "252", true);
@@ -19,6 +26,9 @@ function populateStorage() {
     myLibrary.push(book2);
   }
 }
+
+
+
 
 const title = document.getElementById("title");
 const author = document.getElementById("author");
