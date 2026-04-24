@@ -1,19 +1,31 @@
 .form-group {
-  width: 400px;
-  height: 300px;
-  align-self: left;
+  max-width: 400px;
   padding-left: 20px;
+  margin-top: 10px;
+  /* fixed */
 }
 
 .btn {
   display: block;
 }
 
+.btn-primary {
+  margin-top: 15px;
+}
+
 .form-check-label {
   padding-left: 20px;
-  margin: 5px 0px 5px 0px;
+  margin: 5px 0;
 }
 
 button.btn-info {
   margin: 20px;
+}
+
+.jumbotron {
+  background-color: #7c8b9a;
+  color: white;
+  padding:10px 20px;
+  margin-bottom: 30px;
+  border-radius: 15px;
 }
