@@ -92,7 +92,7 @@ function render() {
 
     const index = i;
 
-    // ✅ Read toggle button
+    // ✅ Read toggle button (no id needed - event listeners handle functionality)
     let readToggleBtnEl = document.createElement("button");
     readToggleBtnEl.className = "btn btn-success";
     readToggleBtnEl.innerText = myLibrary[i].isRead ? "Read" : "Not Read";
@@ -103,15 +103,35 @@ function render() {
       render();
     });
 
-    // ✅ Delete button
-    let deleteBtnEl = document.createElement("button");
-    deleteBtnEl.className = "btn btn-warning";
-    deleteBtnEl.innerText = "Delete";
-    deleteCellEl.appendChild(deleteBtnEl);
+    // ✅ Delete button (no id needed - event listeners handle functionality)
+    let deleteButtonEl = document.createElement("button");
+    deleteButtonEl.className = "btn btn-warning";
+    deleteButtonEl.innerText = "Delete";
+    deleteCellEl.appendChild(deleteButtonEl);
 
-    deleteBtnEl.addEventListener("click", function () {
-      alert(`You've deleted title: ${myLibrary[index].title}`);
+    deleteButtonEl.addEventListener("click", function () {
+      const title = myLibrary[index].title;
       myLibrary.splice(index, 1);
+
+      // Show non-blocking notification (doesn't freeze the page)
+      const notification = document.createElement("div");
+      notification.className = "alert alert-info alert-dismissible fade show";
+      notification.style.position = "fixed";
+      notification.style.top = "20px";
+      notification.style.left = "50%";
+      notification.style.transform = "translateX(-50%)";
+      notification.style.zIndex = "9999";
+      notification.innerHTML = `You've deleted title: <strong>${title}</strong>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>`;
+      document.body.appendChild(notification);
+
+      // Auto-remove after 4 seconds
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 4000);
+
       render();
     });
   }
