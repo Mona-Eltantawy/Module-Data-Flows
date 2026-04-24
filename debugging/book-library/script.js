@@ -1,138 +1,128 @@
-let myLibrary = [];
+// ✅ Data
+const myLibrary = [];
 
-window.addEventListener("load", function () {
-  populateStorage();
-});
-
-function populateStorage() {
-  if (myLibrary.length === 0) {
-    let book1 = new Book("Robinson Crusoe", "Daniel Defoe", 252, true);
-    let book2 = new Book(
-      "The Old Man and the Sea",
-      "Ernest Hemingway",
-      127,
-      true
-    );
-
-    myLibrary.push(book1, book2);
-    render();
-  }
-}
-
+// ✅ DOM elements (clear naming)
+const formEl = document.getElementById("bookForm");
 const titleInputEl = document.getElementById("title");
 const authorInputEl = document.getElementById("author");
 const pagesInputEl = document.getElementById("pages");
 const checkInputEl = document.getElementById("check");
+const tableBodyEl = document.querySelector("#display tbody");
+const messageEl = document.getElementById("message");
 
-// Add book
-function submit() {
-  // ✅ Input Preprocessing
-  // Sanitization: trim whitespace from text inputs
-  const trimmedTitle = titleInputEl.value.trim();
-  const trimmedAuthor = authorInputEl.value.trim();
-  const pages = Number(pagesInputEl.value);
+// ✅ Init
+window.addEventListener("load", () => {
+  populateStorage(); // only called once
+  render();
+});
 
-  // ✅ Input Validation
-  // Reject: empty/whitespace-only strings, non-numeric page input, non-positive counts, or values exceeding max
-  if (
-    !trimmedTitle ||
-    !trimmedAuthor ||
-    isNaN(pages) ||
-    pages < 1 ||
-    pages > 9999
-  ) {
-    alert(
-      "Please provide valid input: non-empty title/author and page count between 1-9999!"
+// ✅ Populate initial data
+function populateStorage() {
+  if (myLibrary.length === 0) {
+    myLibrary.push(
+      new Book("Robinson Crusoe", "Daniel Defoe", 252, true),
+      new Book("The Old Man and the Sea", "Ernest Hemingway", 127, true)
     );
+  }
+}
+
+// ✅ Handle form submit (NO inline onclick)
+formEl.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  // 🔹 Preprocessing
+  const title = titleInputEl.value.trim();
+  const author = authorInputEl.value.trim();
+  const pages = Number(pagesInputEl.value);
+  const isRead = checkInputEl.checked;
+
+  // 🔹 Validation
+  if (!title || !author) {
+    showMessage("Title and Author cannot be empty.");
     return;
   }
 
-  // ✅ Create and store book with sanitized/validated input
-  let book = new Book(trimmedTitle, trimmedAuthor, pages, checkInputEl.checked);
+  if (Number.isNaN(pages) || pages < 1 || pages > 9999) {
+    showMessage("Pages must be between 1 and 9999.");
+    return;
+  }
+
+  // 🔹 Add book
+  const book = new Book(title, author, pages, isRead);
   myLibrary.push(book);
 
-  // ✅ Reset form
-  titleInputEl.value = "";
-  authorInputEl.value = "";
-  pagesInputEl.value = "";
-  checkInputEl.checked = false;
+  // 🔹 Reset form
+  formEl.reset();
 
   render();
-}
+});
 
-// Book constructor
+// ✅ Constructor
 function Book(title, author, pages, isRead) {
   this.title = title;
   this.author = author;
-  this.pages = pages;
+  this.pages = pages; // number (correct type)
   this.isRead = isRead;
 }
 
-// Render table
+// ✅ Render table
 function render() {
-  let displayTableEl = document.getElementById("display");
-  let tbodyEl = displayTableEl.querySelector("tbody");
+  // 🔹 Efficient clear
+  tableBodyEl.innerHTML = "";
 
-  // ✅ Clear old rows in one operation (keep header)
-  tbodyEl.innerHTML = "";
+  myLibrary.forEach((book, index) => {
+    const row = document.createElement("tr");
 
-  // ✅ Add updated rows
-  for (let i = 0; i < myLibrary.length; i++) {
-    let rowEl = displayTableEl.insertRow();
+    const titleCell = document.createElement("td");
+    const authorCell = document.createElement("td");
+    const pagesCell = document.createElement("td");
+    const readCell = document.createElement("td");
+    const deleteCell = document.createElement("td");
 
-    let titleCellEl = rowEl.insertCell(0);
-    let authorCellEl = rowEl.insertCell(1);
-    let pagesCellEl = rowEl.insertCell(2);
-    let wasReadCellEl = rowEl.insertCell(3);
-    let deleteCellEl = rowEl.insertCell(4);
+    // 🔹 Safe text assignment
+    titleCell.textContent = book.title;
+    authorCell.textContent = book.author;
+    pagesCell.textContent = book.pages;
 
-    titleCellEl.innerText = myLibrary[i].title;
-    authorCellEl.innerText = myLibrary[i].author;
-    pagesCellEl.innerText = myLibrary[i].pages;
+    // 🔹 Toggle read button (simplified)
+    const toggleBtn = document.createElement("button");
+    toggleBtn.className = "btn btn-success";
+    toggleBtn.textContent = book.isRead ? "Yes" : "No";
 
-    const index = i;
-
-    // ✅ Read toggle button (no id needed - event listeners handle functionality)
-    let readToggleBtnEl = document.createElement("button");
-    readToggleBtnEl.className = "btn btn-success";
-    readToggleBtnEl.innerText = myLibrary[i].isRead ? "Read" : "Not Read";
-    wasReadCellEl.appendChild(readToggleBtnEl);
-
-    readToggleBtnEl.addEventListener("click", function () {
-      myLibrary[index].isRead = !myLibrary[index].isRead;
+    toggleBtn.addEventListener("click", () => {
+      book.isRead = !book.isRead;
       render();
     });
 
-    // ✅ Delete button (no id needed - event listeners handle functionality)
-    let deleteButtonEl = document.createElement("button");
-    deleteButtonEl.className = "btn btn-warning";
-    deleteButtonEl.innerText = "Delete";
-    deleteCellEl.appendChild(deleteButtonEl);
+    readCell.appendChild(toggleBtn);
 
-    deleteButtonEl.addEventListener("click", function () {
-      const title = myLibrary[index].title;
+    // 🔹 Delete button
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "btn btn-warning";
+    deleteBtn.textContent = "Delete";
+
+    deleteBtn.addEventListener("click", () => {
+      // delete first
+      const deletedTitle = book.title;
       myLibrary.splice(index, 1);
 
-      // Show non-blocking notification (doesn't freeze the page)
-      const notification = document.createElement("div");
-      notification.className = "alert alert-info alert-dismissible fade show";
-      notification.style.position = "fixed";
-      notification.style.top = "20px";
-      notification.style.left = "50%";
-      notification.style.transform = "translateX(-50%)";
-      notification.style.zIndex = "9999";
-      notification.innerHTML = `You've deleted title: <strong>${title}</strong>
-        <button type="button" class="close" data-dismiss="alert">&times;</button>`;
-      document.body.appendChild(notification);
-
-      // Auto-remove after 4 seconds
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.remove();
-        }
-      }, 4000);
-
+      // then show message (non-blocking)
+      showMessage(`Deleted: "${deletedTitle}"`);
       render();
     });
-  }
+
+    deleteCell.appendChild(deleteBtn);
+
+    row.append(titleCell, authorCell, pagesCell, readCell, deleteCell);
+    tableBodyEl.appendChild(row);
+  });
+}
+
+// ✅ Non-blocking message (instead of alert)
+function showMessage(text) {
+  messageEl.textContent = text;
+
+  setTimeout(() => {
+    messageEl.textContent = "";
+  }, 2000);
 }
